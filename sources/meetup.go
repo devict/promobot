@@ -1,10 +1,4 @@
-package main
-
-type Source interface {
-	Name() string
-	Type() string
-	Retrieve() ([]Event, error)
-}
+package sources
 
 type MeetupSource struct {
 	name string

@@ -1,6 +1,12 @@
-package main
+package sources
 
 import "time"
+
+type Source interface {
+	Name() string
+	Type() string
+	Retrieve() ([]Event, error)
+}
 
 type Event struct {
 	Name     string

@@ -3,16 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
+
+	"github.com/devict/promobot/channels"
+	"github.com/devict/promobot/sources"
 )
 
 func main() {
-	sources := []Source{
-		Source(NewMeetupSource("devICT", "")),
+	sources := []sources.Source{
+		sources.Source(sources.NewMeetupSource("devICT", "")),
 	}
 
-	channels := []Channel{
-		Channel(NewSlackChannel("devICT", "")),
-		Channel(NewTwitterChannel("devICT", "")),
+	channels := []channels.Channel{
+		channels.Channel(channels.NewSlackChannel("devICT", "")),
+		channels.Channel(channels.NewTwitterChannel("devICT", "")),
 	}
 
 	notificationRules := []NotificationRule{
@@ -54,6 +57,6 @@ type NotificationRule struct {
 	messageTemplate string
 }
 
-func messagesFromEvents(events []Event, rules []NotificationRule) []string {
+func messagesFromEvents(events []sources.Event, rules []NotificationRule) []string {
 	return []string{}
 }
