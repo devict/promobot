@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"text/template"
+	"time"
 
 	"github.com/devict/promobot/channels"
+	"github.com/devict/promobot/engine"
+	"github.com/devict/promobot/rules"
 	"github.com/devict/promobot/sources"
 )
 
@@ -18,45 +20,27 @@ func main() {
 		channels.Channel(channels.NewTwitterChannel("devICT", "")),
 	}
 
-	notificationRules := []NotificationRule{
-		{1, "Today! Join %s at %s for %s\n\nMore info at %s"},
+	notificationRules := []rules.NotificationRule{
+		{
+			NumDaysOut: 1,
+			ChannelTemplates: map[string]*template.Template{
+				"slack": template.Must(
+					template.New("slack").Parse("Today! Join %s at %s for %s\n\nMore info at %s"),
+				),
+				"twitter": template.Must(
+					template.New("twitter").Parse("Today! Join %s at %s for %s\n\nMore info at %s"),
+				),
+			},
+		},
 	}
 
-	for _, source := range sources {
-		events, err := source.Retrieve()
-		if err != nil {
-			// TODO: make sure this is the right error logging pattern
-			log.Print(fmt.Errorf(
-				"failed to retrieve events from %s source %s: %w",
-				source.Type(),
-				source.Name(),
-				err,
-			))
-			continue
-		}
-
-		messages := messagesFromEvents(events, notificationRules)
-
-		for _, message := range messages {
-			for _, channel := range channels {
-				if err := channel.Send(message); err != nil {
-					log.Print(fmt.Errorf(
-						"failed to send to %s channel %s: %w",
-						channel.Type(),
-						channel.Name(),
-						err,
-					))
-				}
-			}
-		}
+	config := engine.EngineConfig{
+		Channels: channels,
+		Sources:  sources,
+		Rules:    notificationRules,
 	}
-}
 
-type NotificationRule struct {
-	numDaysOut      int
-	messageTemplate string
-}
+	sleepDuration := time.Second
 
-func messagesFromEvents(events []sources.Event, rules []NotificationRule) []string {
-	return []string{}
+	engine.NewEngine(config, sleepDuration).Run()
 }
