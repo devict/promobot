@@ -11,18 +11,18 @@ import (
 )
 
 type EngineConfig struct {
-	Channels []channels.Channel
-	Sources  []sources.Source
-	Rules    []rules.NotificationRule
+	Channels  []channels.Channel
+	Sources   []sources.Source
+	Rules     []rules.NotificationRule
+	SleepTime time.Duration
 }
 
 type Engine struct {
-	config    EngineConfig
-	sleepTime time.Duration
+	config EngineConfig
 }
 
-func NewEngine(config EngineConfig, sleepTime time.Duration) *Engine {
-	return &Engine{config, sleepTime}
+func NewEngine(config EngineConfig) *Engine {
+	return &Engine{config}
 }
 
 func (e *Engine) Run() {

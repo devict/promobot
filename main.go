@@ -20,7 +20,7 @@ func main() {
 		channels.Channel(channels.NewTwitterChannel("devICT", "")),
 	}
 
-	notificationRules := []rules.NotificationRule{
+	notifyRules := []rules.NotifyRule{
 		{
 			NumDaysOut: 1,
 			ChannelTemplates: map[string]*template.Template{
@@ -35,12 +35,11 @@ func main() {
 	}
 
 	config := engine.EngineConfig{
-		Channels: channels,
-		Sources:  sources,
-		Rules:    notificationRules,
+		Channels:  channels,
+		Sources:   sources,
+		Rules:     notifyRules,
+		SleepTime: 1 * time.Second,
 	}
 
-	sleepDuration := time.Second
-
-	engine.NewEngine(config, sleepDuration).Run()
+	engine.NewEngine(config).Run()
 }
