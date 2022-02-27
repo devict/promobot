@@ -37,7 +37,7 @@ func (e *Engine) RunOnce() {
 		events, err := source.Retrieve()
 		if err != nil {
 			// TODO: make sure this is the right error logging pattern
-			log.Print(fmt.Errorf(
+			log.Println(fmt.Errorf(
 				"failed to retrieve events from %s source %s: %w",
 				source.Type(),
 				source.Name(),
@@ -54,18 +54,18 @@ func (e *Engine) RunOnce() {
 
 				channelMessages, err := rule.MessagesFromEvent(event)
 				if err != nil {
-					log.Print(fmt.Errorf("failed to parse channel messages: %w", err))
+					log.Println(fmt.Errorf("failed to parse channel messages: %w", err))
 				}
 
 				for _, channel := range e.config.Channels {
 					msg, ok := channelMessages[channel.Type()]
 					if !ok {
-						log.Print(fmt.Errorf("did not find message for %s channel %s", channel.Type(), channel.Name()))
+						log.Println(fmt.Errorf("did not find message for %s channel %s", channel.Type(), channel.Name()))
 					}
 
 					log.Printf("sending event to %s on %s: %s\n", channel.Name(), channel.Type(), event.Name)
 					if err := channel.Send(msg); err != nil {
-						log.Print(fmt.Errorf(
+						log.Println(fmt.Errorf(
 							"failed to send to %s channel %s: %w",
 							channel.Type(),
 							channel.Name(),
