@@ -20,7 +20,7 @@ func (c *SlackChannel) Type() string { return "slack" }
 func (c *SlackChannel) Name() string { return c.name }
 
 func (c *SlackChannel) Send(message string) error {
-	messageStr, err := json.Marshal(message)
+	messageStr, err := json.Marshal(SlackMessage{Text: message})
 	if err != nil {
 		return fmt.Errorf("failed to marshal slack message: %w", err)
 	}
