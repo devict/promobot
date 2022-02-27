@@ -22,6 +22,11 @@ func (rule NotifyRule) MessagesFromEvent(event sources.Event) (map[string]string
 }
 
 func (rule NotifyRule) EventIsApplicable(event sources.Event) bool {
+	// don't promote the event if it's already started, in case of 0 days out rule
+	if time.Now().After(event.DateTime) {
+		return false
+	}
+
 	checkDate := dateFromTime(time.Now().Add(time.Duration(rule.NumDaysOut*24) * time.Hour))
 	eventDate := dateFromTime(event.DateTime)
 	return eventDate.Equal(checkDate)
