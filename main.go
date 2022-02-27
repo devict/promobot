@@ -15,6 +15,7 @@ type config struct {
 	DevICTSlackWebhook string `envconfig:"DEVICT_SLACK_WEBHOOK" required:"true"`
 	DevICTTwitter      DevICTTwitterConfig
 	DevICTMeetupURL    string `envconfig:"DEVICT_MEETUP_URL" required:"true"`
+	OzSecMeetupURL     string `envconfig:"OZSEC_MEETUP_URL" required:"true"`
 }
 
 type DevICTTwitterConfig struct {
@@ -33,6 +34,7 @@ func main() {
 	engine.NewEngine(engine.EngineConfig{
 		Sources: []sources.Source{
 			sources.Source(sources.NewMeetupSource("devICT", c.DevICTMeetupURL)),
+			sources.Source(sources.NewMeetupSource("OzSec", c.OzSecMeetupURL)),
 		},
 		Channels: []channels.Channel{
 			channels.Channel(channels.NewSlackChannel("devICT", c.DevICTSlackWebhook)),
