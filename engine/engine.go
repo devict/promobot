@@ -63,6 +63,7 @@ func (e *Engine) RunOnce() {
 						log.Print(fmt.Errorf("did not find message for %s channel %s", channel.Type(), channel.Name()))
 					}
 
+					fmt.Printf("sending event to %s on %s: %s", channel.Name(), channel.Type(), event.Name)
 					if err := channel.Send(msg); err != nil {
 						log.Print(fmt.Errorf(
 							"failed to send to %s channel %s: %w",

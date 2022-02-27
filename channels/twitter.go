@@ -1,7 +1,5 @@
 package channels
 
-import "fmt"
-
 type TwitterConfig struct {
 	AccessToken       string
 	AccessTokenSecret string
@@ -22,7 +20,6 @@ func (c *TwitterChannel) Type() string { return "twitter" }
 func (c *TwitterChannel) Name() string { return c.name }
 
 func (c *TwitterChannel) Send(message string) error {
-	fmt.Printf("twitter message: %s\n", message)
 	// TODO: implement twitter sending
 	return nil
 }

@@ -45,11 +45,11 @@ func main() {
 		},
 		Rules: []rules.NotifyRule{
 			{
-				NumDaysOut: 1,
+				NumDaysOut: 4,
 				ChannelTemplates: map[string]rules.MsgFunc{
-					// "slack": func(e sources.Event) string {
-					// 	return fmt.Sprintf("Tomorrow! %s presents %s at %s", e.Source, e.Name, e.Location)
-					// },
+					"slack": func(e sources.Event) string {
+						return fmt.Sprintf("Testing!\n\n%s presents %s at %s", e.Source, e.Name, e.Location)
+					},
 					"twitter": func(e sources.Event) string {
 						return fmt.Sprintf("Tomorrow! %s presents %s at %s", e.Source, e.Name, e.Location)
 					},
