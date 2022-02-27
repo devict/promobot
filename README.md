@@ -10,6 +10,6 @@ A `Source` represents a source of events data from a specific organization. prom
 
 A `Channel` represents something that can have an event promoted through it. Examples are Slack or Twitter.
 
-## NotifcationRules
+## NotifyRules
 
-A a list of `NotificationRule`s describes when to send promotional messages about an event to various channels. A rule defines how many days out to promote the event, and what the message should look like for events promoted at that time.
+A a list of `NotifyRule`s describes when to send promotional messages about an event to various channels. A rule defines how many days out to promote the event, and what the message should look like for events promoted at that time.
