@@ -13,7 +13,7 @@ import (
 type EngineConfig struct {
 	Channels  []channels.Channel
 	Sources   []sources.Source
-	Rules     []rules.NotificationRule
+	Rules     []rules.NotifyRule
 	SleepTime time.Duration
 }
 
@@ -26,6 +26,13 @@ func NewEngine(config EngineConfig) *Engine {
 }
 
 func (e *Engine) Run() {
+	for {
+		e.RunOnce()
+		time.Sleep(e.config.SleepTime)
+	}
+}
+
+func (e *Engine) RunOnce() {
 	for _, source := range e.config.Sources {
 		events, err := source.Retrieve()
 		if err != nil {
