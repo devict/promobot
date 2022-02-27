@@ -1,7 +1,10 @@
 package channels
 
 type TwitterConfig struct {
-	token string
+	AccessToken       string
+	AccessTokenSecret string
+	APIKey            string
+	APISecretKey      string
 }
 
 type TwitterChannel struct {
@@ -9,8 +12,8 @@ type TwitterChannel struct {
 	config TwitterConfig
 }
 
-func NewTwitterChannel(name, token string) *TwitterChannel {
-	return &TwitterChannel{name: name, config: TwitterConfig{token: token}}
+func NewTwitterChannel(name string, config) *TwitterChannel {
+	return &TwitterChannel{name: name, config: config}
 }
 
 func (c *TwitterChannel) Type() string { return "twitter" }
