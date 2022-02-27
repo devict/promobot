@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/devict/promobot/channels"
@@ -11,12 +12,12 @@ import (
 )
 
 type config struct {
-	devICTSlackWebhook string `envconfig:"DEVICT_SLACK_WEBHOOK" required:"true"`
-	devICTTwitter      devICTTwitterConfig
-	devICTMeetupURL    string `envconfig:"DEVICT_MEETUP_URL" required:"true"`
+	DevICTSlackWebhook string `envconfig:"DEVICT_SLACK_WEBHOOK" required:"true"`
+	DevICTTwitter      DevICTTwitterConfig
+	DevICTMeetupURL    string `envconfig:"DEVICT_MEETUP_URL" required:"true"`
 }
 
-type devICTTwitterConfig struct {
+type DevICTTwitterConfig struct {
 	AccessToken       string `envconfig:"DEVICT_TW_ACCESS_TOKEN" required:"true"`
 	AccessTokenSecret string `envconfig:"DEVICT_TW_ACCESS_TOKEN_SECRET" required:"true"`
 	APIKey            string `envconfig:"DEVICT_TW_API_KEY" required:"true"`
@@ -25,34 +26,37 @@ type devICTTwitterConfig struct {
 
 func main() {
 	var c config
-	envconfig.MustProcess("", &c)
+	if err := envconfig.Process("", &c); err != nil {
+		panic(err)
+	}
 
 	engine.NewEngine(engine.EngineConfig{
-		Channels: []channels.Channel{
-			channels.Channel(channels.NewSlackChannel("devICT", c.devICTSlackWebhook)),
-			channels.Channel(channels.NewTwitterChannel("devICT", channels.TwitterConfig{
-				AccessToken:       c.devICTTwitter.AccessToken,
-				AccessTokenSecret: c.devICTTwitter.AccessTokenSecret,
-				APIKey:            c.devICTTwitter.APIKey,
-				APISecretKey:      c.devICTTwitter.APISecretKey,
-			})),
-		},
 		Sources: []sources.Source{
-			sources.Source(sources.NewMeetupSource("devICT", c.devICTMeetupURL)),
+			sources.Source(sources.NewMeetupSource("devICT", c.DevICTMeetupURL)),
+		},
+		Channels: []channels.Channel{
+			channels.Channel(channels.NewSlackChannel("devICT", c.DevICTSlackWebhook)),
+			channels.Channel(channels.NewTwitterChannel("devICT", channels.TwitterConfig{
+				AccessToken:       c.DevICTTwitter.AccessToken,
+				AccessTokenSecret: c.DevICTTwitter.AccessTokenSecret,
+				APIKey:            c.DevICTTwitter.APIKey,
+				APISecretKey:      c.DevICTTwitter.APISecretKey,
+			})),
 		},
 		Rules: []rules.NotifyRule{
 			{
 				NumDaysOut: 1,
 				ChannelTemplates: map[string]rules.MsgFunc{
-					"slack": func(e sources.Event) string {
-						return "TODO!"
-					},
+					// "slack": func(e sources.Event) string {
+					// 	return fmt.Sprintf("Tomorrow! %s presents %s at %s", e.Source, e.Name, e.Location)
+					// },
 					"twitter": func(e sources.Event) string {
-						return "TODO!"
+						return fmt.Sprintf("Tomorrow! %s presents %s at %s", e.Source, e.Name, e.Location)
 					},
 				},
 			},
 		},
-		SleepTime: 1 * time.Second,
-	}).Run()
+		SleepTime: 1 * time.Hour,
+	}).RunOnce()
+	// }).Run()
 }
