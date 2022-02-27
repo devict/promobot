@@ -1,7 +1,6 @@
 package main
 
 import (
-	"text/template"
 	"time"
 
 	"github.com/devict/promobot/channels"
@@ -11,35 +10,30 @@ import (
 )
 
 func main() {
-	sources := []sources.Source{
-		sources.Source(sources.NewMeetupSource("devICT", "")),
-	}
+	engine.NewEngine(engine.EngineConfig{
 
-	channels := []channels.Channel{
-		channels.Channel(channels.NewSlackChannel("devICT", "")),
-		channels.Channel(channels.NewTwitterChannel("devICT", "")),
-	}
+		Channels: []channels.Channel{
+			channels.Channel(channels.NewSlackChannel("devICT", "")),
+			channels.Channel(channels.NewTwitterChannel("devICT", "")),
+		},
 
-	notifyRules := []rules.NotifyRule{
-		{
-			NumDaysOut: 1,
-			ChannelTemplates: map[string]*template.Template{
-				"slack": template.Must(
-					template.New("slack").Parse("Today! Join %s at %s for %s\n\nMore info at %s"),
-				),
-				"twitter": template.Must(
-					template.New("twitter").Parse("Today! Join %s at %s for %s\n\nMore info at %s"),
-				),
+		Sources: []sources.Source{
+			sources.Source(sources.NewMeetupSource("devICT", "")),
+		},
+
+		Rules: []rules.NotifyRule{
+			{
+				NumDaysOut: 1,
+				ChannelTemplates: map[string]rules.EventTemplate{
+					"slack": func(e sources.Event) string {
+						return "TODO!"
+					},
+					"twitter": func(e sources.Event) string {
+						return "TODO!"
+					},
+				},
 			},
 		},
-	}
-
-	config := engine.EngineConfig{
-		Channels:  channels,
-		Sources:   sources,
-		Rules:     notifyRules,
 		SleepTime: 1 * time.Second,
-	}
-
-	engine.NewEngine(config).Run()
+	}).Run()
 }

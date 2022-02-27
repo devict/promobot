@@ -1,28 +1,32 @@
 package rules
 
 import (
-	"bytes"
-	"fmt"
-	"text/template"
+	"time"
 
 	"github.com/devict/promobot/sources"
 )
 
-type NotificationRule struct {
+type MsgFunc func(sources.Event) string
+
+type NotifyRule struct {
 	NumDaysOut       int
-	ChannelTemplates map[string]*template.Template
+	ChannelTemplates map[string]MsgFunc
 }
 
-func MessagesFromEvent(event sources.Event, rules []NotificationRule) (map[string]string, error) {
+func (rule NotifyRule) MessagesFromEvent(event sources.Event) (map[string]string, error) {
 	channelMessages := make(map[string]string)
-	for _, rule := range rules {
-		for chanType, tmpl := range rule.ChannelTemplates {
-			var out bytes.Buffer
-			if err := tmpl.Execute(&out, event); err != nil {
-				return channelMessages, fmt.Errorf("failed to compile template: %w", err)
-			}
-			channelMessages[chanType] = out.String()
-		}
+	for chanType, msgFunc := range rule.ChannelTemplates {
+		channelMessages[chanType] = msgFunc(event)
 	}
 	return channelMessages, nil
+}
+
+func (rule NotifyRule) EventIsApplicable(event sources.Event) bool {
+	checkDate := dateFromTime(time.Now().Add(time.Duration(rule.NumDaysOut*24) * time.Hour))
+	eventDate := dateFromTime(event.DateTime)
+	return eventDate.Equal(checkDate)
+}
+
+func dateFromTime(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }

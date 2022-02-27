@@ -47,24 +47,30 @@ func (e *Engine) RunOnce() {
 		}
 
 		for _, event := range events {
-			channelMessages, err := rules.MessagesFromEvent(event, e.config.Rules)
-			if err != nil {
-				log.Print(fmt.Errorf("failed to parse channel messages: %w", err))
-			}
-
-			for _, channel := range e.config.Channels {
-				msg, ok := channelMessages[channel.Type()]
-				if !ok {
-					log.Print(fmt.Errorf("did not find message for %s channel %s", channel.Type(), channel.Name()))
+			for _, rule := range e.config.Rules {
+				if !rule.EventIsApplicable(event) {
+					continue
 				}
 
-				if err := channel.Send(msg); err != nil {
-					log.Print(fmt.Errorf(
-						"failed to send to %s channel %s: %w",
-						channel.Type(),
-						channel.Name(),
-						err,
-					))
+				channelMessages, err := rule.MessagesFromEvent(event)
+				if err != nil {
+					log.Print(fmt.Errorf("failed to parse channel messages: %w", err))
+				}
+
+				for _, channel := range e.config.Channels {
+					msg, ok := channelMessages[channel.Type()]
+					if !ok {
+						log.Print(fmt.Errorf("did not find message for %s channel %s", channel.Type(), channel.Name()))
+					}
+
+					if err := channel.Send(msg); err != nil {
+						log.Print(fmt.Errorf(
+							"failed to send to %s channel %s: %w",
+							channel.Type(),
+							channel.Name(),
+							err,
+						))
+					}
 				}
 			}
 		}
