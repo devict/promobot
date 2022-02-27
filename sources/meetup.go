@@ -12,15 +12,10 @@ func NewMeetupSource(name, url string) *MeetupSource {
 	}
 }
 
-func (c *MeetupSource) Name() string {
-	return c.name
-}
-
-func (c *MeetupSource) Type() string {
-	return "meetup"
-}
+func (c *MeetupSource) Name() string { return c.name }
+func (c *MeetupSource) Type() string { return "meetup" }
 
 func (c *MeetupSource) Retrieve() ([]Event, error) {
-	// TODO
+	// TODO: implement retrieving meetup events
 	return []Event{}, nil
 }
