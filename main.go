@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/devict/promobot/channels"
 	"github.com/devict/promobot/engine"
@@ -60,7 +59,7 @@ func main() {
 				},
 			},
 		},
-		SleepTime: 1 * time.Hour,
+		RunAt: engine.RunAt{Hour: 7, Minute: 30},
 	}).RunOnce()
 	// }).Run()
 }

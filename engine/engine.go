@@ -11,10 +11,15 @@ import (
 )
 
 type EngineConfig struct {
-	Channels  []channels.Channel
-	Sources   []sources.Source
-	Rules     []rules.NotifyRule
-	SleepTime time.Duration
+	Channels []channels.Channel
+	Sources  []sources.Source
+	Rules    []rules.NotifyRule
+	RunAt    RunAt
+}
+
+type RunAt struct {
+	Hour   int
+	Minute int
 }
 
 type Engine struct {
@@ -27,9 +32,16 @@ func NewEngine(config EngineConfig) *Engine {
 
 func (e *Engine) Run() {
 	for {
-		e.RunOnce()
-		time.Sleep(e.config.SleepTime)
+		if e.ShouldRun(time.Now()) {
+			e.RunOnce()
+		}
+		time.Sleep(time.Minute)
 	}
+}
+
+func (e *Engine) ShouldRun(now time.Time) bool {
+	now = now.Round(time.Minute)
+	return now.Hour() == e.config.RunAt.Hour && now.Minute() == e.config.RunAt.Minute
 }
 
 func (e *Engine) RunOnce() {

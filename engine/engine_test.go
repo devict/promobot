@@ -99,7 +99,6 @@ func TestEngine(t *testing.T) {
 				},
 			},
 		},
-		SleepTime: 1 * time.Second,
 	}
 
 	engine.NewEngine(config).RunOnce()
@@ -118,8 +117,6 @@ func TestEngine(t *testing.T) {
 		t.Fatal("testChannel2 did not receive expected number of messages")
 	}
 
-	fmt.Printf("%#v\n", testChannel1.sentMsgs)
-	fmt.Printf("%#v\n", testChannel2.sentMsgs)
 	for _, expectedMsg := range expected {
 		if !containsStr(testChannel1.sentMsgs, expectedMsg) {
 			t.Fatalf("testChannel1 did not receive message: %s", expectedMsg)
@@ -138,4 +135,25 @@ func containsStr(slice []string, str string) bool {
 		}
 	}
 	return found
+}
+
+func TestShouldRun(t *testing.T) {
+	now := time.Now()
+
+	e := engine.NewEngine(engine.EngineConfig{
+		RunAt: engine.RunAt{
+			Hour:   now.Hour(),
+			Minute: now.Minute(),
+		},
+	})
+
+	if e.ShouldRun(now.Add(-time.Minute)) != false {
+		t.Fatal("expected e.ShouldRun to be false a minute before")
+	}
+	if e.ShouldRun(now) != true {
+		t.Fatal("expected e.ShouldRun to be true")
+	}
+	if e.ShouldRun(now.Add(time.Minute)) != false {
+		t.Fatal("expected e.ShouldRun to be false after a minute")
+	}
 }
