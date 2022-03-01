@@ -18,7 +18,7 @@ jobs:
       DEVICT_MEETUP_URL: ${{ secrets.DEVICT_MEETUP_URL }}
       OZSEC_MEETUP_URL: ${{ secrets.OZSEC_MEETUP_URL }}
       WTF_MEETUP_URL: ${{ secrets.WTF_MEETUP_URL }}
-  steps:
+    steps:
     - uses: actions/checkout@v2
 
     - name: Set up Go
