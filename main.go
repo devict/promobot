@@ -106,14 +106,9 @@ func main() {
 				},
 			},
 		},
-		RunAt:     engine.RunAt{Hour: 7, Minute: 30},
 		Location:  loc,
 		DebugMode: c.DebugMode,
 	})
 
-	if c.DebugMode {
-		e.RunOnce()
-	} else {
-		e.Run()
-	}
+	e.RunOnce()
 }
