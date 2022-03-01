@@ -50,7 +50,7 @@ func (e *Engine) ShouldRun(now time.Time) bool {
 
 func (e *Engine) RunOnce() {
 	for _, source := range e.config.Sources {
-		events, err := source.Retrieve()
+		events, err := source.Retrieve(e.config.Location)
 		if err != nil {
 			// TODO: make sure this is the right error logging pattern
 			log.Println(fmt.Errorf(
