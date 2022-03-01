@@ -3,7 +3,7 @@ name: Run
 on:
   schedule:
     # 7:30a every day (13:30 UTC)
-    - cron: '30 13 * * *'
+    - cron: '35 12 * * *'
 
 jobs:
 
