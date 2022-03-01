@@ -82,7 +82,7 @@ func (e *Engine) RunOnce() {
 
 					log.Printf("sending event to %s on %s: %s\n", channel.Name(), channel.Type(), event.Name)
 					if e.config.DebugMode {
-						log.Println(msg)
+						fmt.Printf("%s\n\n", msg)
 					} else {
 						if err := channel.Send(msg); err != nil {
 							log.Println(fmt.Errorf(
