@@ -15,6 +15,7 @@ type EngineConfig struct {
 	Sources  []sources.Source
 	Rules    []rules.NotifyRule
 	RunAt    RunAt
+	Location *time.Location
 }
 
 type RunAt struct {
@@ -27,6 +28,9 @@ type Engine struct {
 }
 
 func NewEngine(config EngineConfig) *Engine {
+	if config.Location == nil {
+		config.Location = time.UTC
+	}
 	return &Engine{config}
 }
 

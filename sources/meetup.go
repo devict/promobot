@@ -22,7 +22,7 @@ func NewMeetupSource(name, url string) *MeetupSource {
 func (c *MeetupSource) Name() string { return c.name }
 func (c *MeetupSource) Type() string { return "meetup" }
 
-func (c *MeetupSource) Retrieve() ([]Event, error) {
+func (c *MeetupSource) Retrieve(loc *time.Location) ([]Event, error) {
 	resp, err := http.Get(c.url)
 	if err != nil {
 		return []Event{}, err
@@ -47,7 +47,7 @@ func (c *MeetupSource) Retrieve() ([]Event, error) {
 			Source:   c.name,
 			URL:      evt.URL,
 			Location: evt.Venue.Name,
-			DateTime: time.UnixMilli(evt.Time),
+			DateTime: time.UnixMilli(evt.Time).In(loc),
 		})
 	}
 

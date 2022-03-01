@@ -5,7 +5,7 @@ import "time"
 type Source interface {
 	Name() string
 	Type() string
-	Retrieve() ([]Event, error)
+	Retrieve(*time.Location) ([]Event, error)
 }
 
 type Event struct {

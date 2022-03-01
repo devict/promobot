@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/devict/promobot/channels"
 	"github.com/devict/promobot/engine"
@@ -31,6 +32,8 @@ func main() {
 		panic(err)
 	}
 
+	loc, _ := time.LoadLocation("America/Chicago")
+
 	engine.NewEngine(engine.EngineConfig{
 		Sources: []sources.Source{
 			sources.Source(sources.NewMeetupSource("devICT", c.DevICTMeetupURL)),
@@ -48,18 +51,59 @@ func main() {
 		},
 		Rules: []rules.NotifyRule{
 			{
+				NumDaysOut: 10,
+				ChannelTemplates: map[string]rules.MsgFunc{
+					"slack": func(e sources.Event) string {
+						t := e.DateTime.Format("Mon 01/02 @ 03:04 PM")
+						return fmt.Sprintf("*%s*, %s is hosting <%s|%s> at %s", t, e.Source, e.URL, e.Name, e.Location)
+					},
+					"twitter": func(e sources.Event) string {
+						source := e.Source
+						if source == "devICT" {
+							source = "us"
+						}
+						t := e.DateTime.Format("Mon, 01/02 at 03:04 PM")
+						return fmt.Sprintf("Join %s for %s! %s\n\nRSVP at %s", source, e.Name, t, e.URL)
+					},
+				},
+			},
+			{
+				NumDaysOut: 5,
+				ChannelTemplates: map[string]rules.MsgFunc{
+					"slack": func(e sources.Event) string {
+						t := e.DateTime.Format("Monday @ 03:04 PM")
+						return fmt.Sprintf("*%s*, %s is hosting <%s|%s> at %s", t, e.Source, e.URL, e.Name, e.Location)
+					},
+					"twitter": func(e sources.Event) string {
+						source := e.Source
+						if source == "devICT" {
+							source = "us"
+						}
+						t := e.DateTime.Format("Monday at 03:04 PM")
+						return fmt.Sprintf("Join %s for %s! %s\n\nMore info at %s", source, e.Name, t, e.URL)
+					},
+				},
+			},
+			{
 				NumDaysOut: 1,
 				ChannelTemplates: map[string]rules.MsgFunc{
 					"slack": func(e sources.Event) string {
 						return fmt.Sprintf("*Tomorrow!* %s is hosting <%s|%s> at %s", e.Source, e.URL, e.Name, e.Location)
 					},
 					"twitter": func(e sources.Event) string {
-						return fmt.Sprintf("Tomorrow! %s is hosting %s at %s\n\nMore info here: %s", e.Source, e.Name, e.Location, e.URL)
+						source := e.Source
+						if source == "devICT" {
+							source = "us"
+						}
+						t := e.DateTime.Format("03:04 PM")
+						return fmt.Sprintf("Tomorrow! Join %s at %s for %s\n\nMore info here: %s", source, t, e.Name, e.URL)
 					},
 				},
 			},
 		},
-		RunAt: engine.RunAt{Hour: 7, Minute: 30},
+		RunAt:    engine.RunAt{Hour: 7, Minute: 30},
+		Location: loc,
 	}).RunOnce()
+	// TODO: run once if invoked locally
 	// }).Run()
 }
