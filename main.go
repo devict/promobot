@@ -12,11 +12,16 @@ import (
 )
 
 type config struct {
+	DebugMode bool `envconfig:"DEBUG_MODE"`
+
+	// Channels
 	DevICTSlackWebhook string `envconfig:"DEVICT_SLACK_WEBHOOK" required:"true"`
 	DevICTTwitter      DevICTTwitterConfig
-	DevICTMeetupURL    string `envconfig:"DEVICT_MEETUP_URL" required:"true"`
-	OzSecMeetupURL     string `envconfig:"OZSEC_MEETUP_URL" required:"true"`
-	WTFMeetupURL       string `envconfig:"WTF_MEETUP_URL" required:"true"`
+
+	// Sources
+	DevICTMeetupURL string `envconfig:"DEVICT_MEETUP_URL" required:"true"`
+	OzSecMeetupURL  string `envconfig:"OZSEC_MEETUP_URL" required:"true"`
+	WTFMeetupURL    string `envconfig:"WTF_MEETUP_URL" required:"true"`
 }
 
 type DevICTTwitterConfig struct {
@@ -34,7 +39,7 @@ func main() {
 
 	loc, _ := time.LoadLocation("America/Chicago")
 
-	engine.NewEngine(engine.EngineConfig{
+	e := engine.NewEngine(engine.EngineConfig{
 		Sources: []sources.Source{
 			sources.Source(sources.NewMeetupSource("devICT", c.DevICTMeetupURL)),
 			sources.Source(sources.NewMeetupSource("OzSec", c.OzSecMeetupURL)),
@@ -68,7 +73,7 @@ func main() {
 				},
 			},
 			{
-				NumDaysOut: 5,
+				NumDaysOut: 4,
 				ChannelTemplates: map[string]rules.MsgFunc{
 					"slack": func(e sources.Event) string {
 						t := e.DateTime.Format("Monday @ 03:04 PM")
@@ -103,8 +108,12 @@ func main() {
 		},
 		RunAt:     engine.RunAt{Hour: 7, Minute: 30},
 		Location:  loc,
-		DebugMode: true,
-	}).RunOnce()
-	// TODO: run once if invoked locally
-	// }).Run()
+		DebugMode: c.DebugMode,
+	})
+
+	if c.DebugMode {
+		e.RunOnce()
+	} else {
+		e.Run()
+	}
 }
