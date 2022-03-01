@@ -101,8 +101,9 @@ func main() {
 				},
 			},
 		},
-		RunAt:    engine.RunAt{Hour: 7, Minute: 30},
-		Location: loc,
+		RunAt:     engine.RunAt{Hour: 7, Minute: 30},
+		Location:  loc,
+		DebugMode: true,
 	}).RunOnce()
 	// TODO: run once if invoked locally
 	// }).Run()

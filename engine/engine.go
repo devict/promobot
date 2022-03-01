@@ -11,11 +11,12 @@ import (
 )
 
 type EngineConfig struct {
-	Channels []channels.Channel
-	Sources  []sources.Source
-	Rules    []rules.NotifyRule
-	RunAt    RunAt
-	Location *time.Location
+	Channels  []channels.Channel
+	Sources   []sources.Source
+	Rules     []rules.NotifyRule
+	RunAt     RunAt
+	Location  *time.Location
+	DebugMode bool
 }
 
 type RunAt struct {
@@ -80,13 +81,17 @@ func (e *Engine) RunOnce() {
 					}
 
 					log.Printf("sending event to %s on %s: %s\n", channel.Name(), channel.Type(), event.Name)
-					if err := channel.Send(msg); err != nil {
-						log.Println(fmt.Errorf(
-							"failed to send to %s channel %s: %w",
-							channel.Type(),
-							channel.Name(),
-							err,
-						))
+					if e.config.DebugMode {
+						log.Println(msg)
+					} else {
+						if err := channel.Send(msg); err != nil {
+							log.Println(fmt.Errorf(
+								"failed to send to %s channel %s: %w",
+								channel.Type(),
+								channel.Name(),
+								err,
+							))
+						}
 					}
 				}
 			}
