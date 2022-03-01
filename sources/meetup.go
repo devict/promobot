@@ -41,7 +41,9 @@ func (c *MeetupSource) Retrieve(loc *time.Location) ([]Event, error) {
 
 	events := make([]Event, 0)
 	for _, evt := range meetupResp.Results {
-		// TODO: deduplicate series events?
+		if haveNextInSeries(events, evt.Name) {
+			continue
+		}
 		events = append(events, Event{
 			Name:     evt.Name,
 			Source:   c.name,
@@ -52,6 +54,15 @@ func (c *MeetupSource) Retrieve(loc *time.Location) ([]Event, error) {
 	}
 
 	return events, nil
+}
+
+func haveNextInSeries(events []Event, eventName string) bool {
+	for _, e := range events {
+		if e.Name == eventName {
+			return true
+		}
+	}
+	return false
 }
 
 type meetupResponse struct {
