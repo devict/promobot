@@ -9,7 +9,16 @@ jobs:
 
   run:
     runs-on: ubuntu-latest
-    steps:
+    env:
+      DEVICT_SLACK_WEBHOOK: ${{ secrets.DEVICT_SLACK_WEBHOOK }}
+      DEVICT_TW_API_KEY: ${{ secrets.DEVICT_TW_API_KEY }}
+      DEVICT_TW_API_SECRET_KEY: ${{ secrets.DEVICT_TW_API_SECRET_KEY }}
+      DEVICT_TW_ACCESS_TOKEN: ${{ secrets.DEVICT_TW_ACCESS_TOKEN }}
+      DEVICT_TW_ACCESS_TOKEN_SECRET: ${{ secrets.DEVICT_TW_ACCESS_TOKEN_SECRET }}
+      DEVICT_MEETUP_URL: ${{ secrets.DEVICT_MEETUP_URL }}
+      OZSEC_MEETUP_URL: ${{ secrets.OZSEC_MEETUP_URL }}
+      WTF_MEETUP_URL: ${{ secrets.WTF_MEETUP_URL }}
+  steps:
     - uses: actions/checkout@v2
 
     - name: Set up Go
