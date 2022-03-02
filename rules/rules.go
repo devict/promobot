@@ -21,9 +21,9 @@ func (rule NotifyRule) MessagesFromEvent(event sources.Event) (map[string]string
 	return channelMessages, nil
 }
 
-func (rule NotifyRule) EventIsApplicable(event sources.Event) bool {
+func (rule NotifyRule) EventIsApplicable(event sources.Event, loc *time.Location) bool {
 	// don't promote the event if it's already started, in case of 0 days out rule
-	if time.Now().After(event.DateTime) {
+	if time.Now().In(loc).After(event.DateTime) {
 		return false
 	}
 

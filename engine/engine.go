@@ -65,7 +65,7 @@ func (e *Engine) RunOnce() {
 
 		for _, event := range events {
 			for _, rule := range e.config.Rules {
-				if !rule.EventIsApplicable(event) {
+				if !rule.EventIsApplicable(event, e.config.Location) {
 					continue
 				}
 
