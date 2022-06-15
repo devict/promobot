@@ -38,7 +38,7 @@ func NewTestSource(name string, events []sources.Event) *TestSource {
 
 func (c *TestSource) Name() string { return c.name }
 func (c *TestSource) Type() string { return "test" }
-func (c *TestSource) Retrieve() ([]sources.Event, error) {
+func (c *TestSource) Retrieve(t *time.Location) ([]sources.Event, error) {
 	return c.events, nil
 }
 
