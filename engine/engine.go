@@ -70,7 +70,7 @@ func (e *Engine) RunOnce() {
 		dayOfWeek := e.config.NowFunc().Weekday()
 
 		for _, event := range events {
-			if dayOfWeek == event.DateTime.Weekday() && eventIsWithinNextWeek(event, e.config.NowFunc()) {
+			if eventIsWithinNextWeek(event, e.config.NowFunc()) {
 				eventsInNextWeek = append(eventsInNextWeek, event)
 			}
 
@@ -126,5 +126,6 @@ func (e *Engine) sendMessage(channel channels.Channel, message string) {
 
 func eventIsWithinNextWeek(event sources.Event, now time.Time) bool {
 	diff := now.Sub(event.DateTime)
-	return diff < 7*24*time.Hour
+	inNextWeek := diff < 7*24*time.Hour
+	return inNextWeek
 }
