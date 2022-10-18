@@ -62,10 +62,10 @@ func main() {
 						t := e.DateTime.Format("Mon 01/02 @ 03:04 PM")
 						return fmt.Sprintf("*%s*, %s is hosting <%s|%s> at %s", t, e.Source, e.URL, e.Name, e.Location)
 					},
-					"twitter": func(e sources.Event) string {
-						t := e.DateTime.Format("Mon, 01/02 at 03:04 PM")
-						return fmt.Sprintf("Join %s for %s! %s\n\nRSVP at %s", e.Source, e.Name, t, e.URL)
-					},
+					// "twitter": func(e sources.Event) string {
+					// 	t := e.DateTime.Format("Mon, 01/02 at 03:04 PM")
+					// 	return fmt.Sprintf("Join %s for %s! %s\n\nRSVP at %s", e.Source, e.Name, t, e.URL)
+					// },
 				},
 			},
 			{
@@ -75,10 +75,10 @@ func main() {
 						t := e.DateTime.Format("Monday @ 03:04 PM")
 						return fmt.Sprintf("*%s*, %s is hosting <%s|%s> at %s", t, e.Source, e.URL, e.Name, e.Location)
 					},
-					"twitter": func(e sources.Event) string {
-						t := e.DateTime.Format("Monday at 03:04 PM")
-						return fmt.Sprintf("Join %s for %s! %s\n\nMore info at %s", e.Source, e.Name, t, e.URL)
-					},
+					// "twitter": func(e sources.Event) string {
+					// 	t := e.DateTime.Format("Monday at 03:04 PM")
+					// 	return fmt.Sprintf("Join %s for %s! %s\n\nMore info at %s", e.Source, e.Name, t, e.URL)
+					// },
 				},
 			},
 			{
@@ -87,10 +87,10 @@ func main() {
 					"slack": func(e sources.Event) string {
 						return fmt.Sprintf("*Tomorrow!* %s is hosting <%s|%s> at %s", e.Source, e.URL, e.Name, e.Location)
 					},
-					"twitter": func(e sources.Event) string {
-						t := e.DateTime.Format("03:04 PM")
-						return fmt.Sprintf("Tomorrow! Join %s at %s for %s\n\nMore info here: %s", e.Source, t, e.Name, e.URL)
-					},
+					// "twitter": func(e sources.Event) string {
+					// 	t := e.DateTime.Format("03:04 PM")
+					// 	return fmt.Sprintf("Tomorrow! Join %s at %s for %s\n\nMore info here: %s", e.Source, t, e.Name, e.URL)
+					// },
 				},
 			},
 			{
@@ -99,10 +99,6 @@ func main() {
 					"slack": func(e sources.Event) string {
 						t := e.DateTime.Format("03:04 PM")
 						return fmt.Sprintf("*Today!* %s is hosting <%s|%s> at %s, %s", e.Source, e.URL, e.Name, e.Location, t)
-					},
-					"twitter": func(e sources.Event) string {
-						t := e.DateTime.Format("03:04 PM")
-						return fmt.Sprintf("Today! Join %s at %s for %s\n\nMore info here: %s", e.Source, t, e.Name, e.URL)
 					},
 				},
 			},
