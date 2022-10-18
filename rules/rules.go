@@ -8,6 +8,8 @@ import (
 
 type MsgFunc func(sources.Event) string
 
+type WeeklySummaryFunc func([]sources.Event) string
+
 type NotifyRule struct {
 	NumDaysOut       int
 	ChannelTemplates map[string]MsgFunc
@@ -21,13 +23,13 @@ func (rule NotifyRule) MessagesFromEvent(event sources.Event) (map[string]string
 	return channelMessages, nil
 }
 
-func (rule NotifyRule) EventIsApplicable(event sources.Event, loc *time.Location) bool {
+func (rule NotifyRule) EventIsApplicable(event sources.Event, loc *time.Location, now time.Time) bool {
 	// don't promote the event if it's already started, in case of 0 days out rule
-	if time.Now().In(loc).After(event.DateTime) {
+	if now.In(loc).After(event.DateTime) {
 		return false
 	}
 
-	checkDate := dateFromTime(time.Now().Add(time.Duration(rule.NumDaysOut*24) * time.Hour))
+	checkDate := dateFromTime(now.Add(time.Duration(rule.NumDaysOut*24) * time.Hour))
 	eventDate := dateFromTime(event.DateTime)
 	return eventDate.Equal(checkDate)
 }

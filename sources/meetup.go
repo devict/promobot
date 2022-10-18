@@ -2,6 +2,7 @@ package sources
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -9,21 +10,28 @@ import (
 
 type MeetupSource struct {
 	name string
-	url  string
+	urlName  string
+
 }
 
-func NewMeetupSource(name, url string) *MeetupSource {
+func NewMeetupSource(name, urlName string) *MeetupSource {
 	return &MeetupSource{
 		name: name,
-		url:  url,
+		urlName: urlName,
 	}
 }
 
 func (c *MeetupSource) Name() string { return c.name }
 func (c *MeetupSource) Type() string { return "meetup" }
+func (c *MeetupSource) JsonUrl() string {
+	return fmt.Sprintf("https://api.meetup.com/2/events?&sign=true&photo-host=public&group_urlname=%s&limited_events=false&fields=series&status=upcoming&page=20", c.urlName)
+}
+func (c *MeetupSource) HtmlUrl() string {
+	return fmt.Sprintf("https://meetup.com/%s", c.urlName)
+}
 
 func (c *MeetupSource) Retrieve(loc *time.Location) ([]Event, error) {
-	resp, err := http.Get(c.url)
+	resp, err := http.Get(c.JsonUrl())
 	if err != nil {
 		return []Event{}, err
 	}

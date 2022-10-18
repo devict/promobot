@@ -11,12 +11,15 @@ import (
 )
 
 type EngineConfig struct {
-	Channels  []channels.Channel
-	Sources   []sources.Source
-	Rules     []rules.NotifyRule
-	RunAt     RunAt
-	Location  *time.Location
-	DebugMode bool
+	NowFunc                func() time.Time
+	Channels               []channels.Channel
+	Sources                []sources.Source
+	Rules                  []rules.NotifyRule
+	WeeklySummaryTemplates map[string]rules.WeeklySummaryFunc
+	WeeklySummaryDay       time.Weekday
+	RunAt                  RunAt
+	Location               *time.Location
+	DebugMode              bool
 }
 
 type RunAt struct {
@@ -63,9 +66,16 @@ func (e *Engine) RunOnce() {
 			continue
 		}
 
+		eventsInNextWeek := []sources.Event{}
+		dayOfWeek := e.config.NowFunc().Weekday()
+
 		for _, event := range events {
+			if dayOfWeek == event.DateTime.Weekday() && eventIsWithinNextWeek(event, e.config.NowFunc()) {
+				eventsInNextWeek = append(eventsInNextWeek, event)
+			}
+
 			for _, rule := range e.config.Rules {
-				if !rule.EventIsApplicable(event, e.config.Location) {
+				if !rule.EventIsApplicable(event, e.config.Location, e.config.NowFunc()) {
 					continue
 				}
 
@@ -79,22 +89,42 @@ func (e *Engine) RunOnce() {
 					if !ok {
 						log.Println(fmt.Errorf("did not find message for %s channel %s", channel.Type(), channel.Name()))
 					}
+					e.sendMessage(channel, msg)
+				}
+			}
+		}
 
-					log.Printf("sending event to %s on %s: %s\n", channel.Name(), channel.Type(), event.Name)
-					if e.config.DebugMode {
-						fmt.Printf("%s\n\n", msg)
-					} else {
-						if err := channel.Send(msg); err != nil {
-							log.Println(fmt.Errorf(
-								"failed to send to %s channel %s: %w",
-								channel.Type(),
-								channel.Name(),
-								err,
-							))
-						}
-					}
+		if dayOfWeek == e.config.WeeklySummaryDay {
+			for _, channel := range e.config.Channels {
+				msgFunc, ok := e.config.WeeklySummaryTemplates[channel.Type()]
+				if !ok {
+					log.Println(fmt.Errorf("did not find message for %s channel %s", channel.Type(), channel.Name()))
+				} else {
+					e.sendMessage(channel, msgFunc(eventsInNextWeek))
 				}
 			}
 		}
 	}
+}
+
+func (e *Engine) sendMessage(channel channels.Channel, message string) {
+	log.Printf("sending weekly summary to %s on %s\n", channel.Name(), channel.Type())
+
+	if e.config.DebugMode {
+		fmt.Printf("%s\n\n", message)
+	} else {
+		if err := channel.Send(message); err != nil {
+			log.Println(fmt.Errorf(
+				"failed to send to %s channel %s: %w",
+				channel.Type(),
+				channel.Name(),
+				err,
+			))
+		}
+	}
+}
+
+func eventIsWithinNextWeek(event sources.Event, now time.Time) bool {
+	diff := now.Sub(event.DateTime)
+	return diff < 7*24*time.Hour
 }
