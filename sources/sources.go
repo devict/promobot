@@ -5,6 +5,8 @@ import "time"
 type Source interface {
 	Name() string
 	Type() string
+	JsonUrl() string
+	HtmlUrl() string
 	Retrieve(*time.Location) ([]Event, error)
 }
 

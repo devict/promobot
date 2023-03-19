@@ -2,6 +2,7 @@ package engine_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/devict/promobot/rules"
 	"github.com/devict/promobot/sources"
 )
+
+var octoberFirst = time.Date(2012, time.October, 1, 8, 0, 0, 0, time.Local)
 
 type TestChannel struct {
 	name     string
@@ -36,8 +39,10 @@ func NewTestSource(name string, events []sources.Event) *TestSource {
 	return &TestSource{name: name, events: events}
 }
 
-func (c *TestSource) Name() string { return c.name }
-func (c *TestSource) Type() string { return "test" }
+func (c *TestSource) Name() string    { return c.name }
+func (c *TestSource) Type() string    { return "test" }
+func (c *TestSource) JsonUrl() string { return "nope" }
+func (c *TestSource) HtmlUrl() string { return "https://meetup.com/devict" }
 func (c *TestSource) Retrieve(t *time.Location) ([]sources.Event, error) {
 	return c.events, nil
 }
@@ -48,7 +53,7 @@ func testEvent(name, source string, daysAhead int) sources.Event {
 		Source:   source,
 		URL:      "https://devict.org",
 		Location: "Definitely not the metaverse",
-		DateTime: time.Now().Add(time.Duration(daysAhead*24) * time.Hour),
+		DateTime: octoberFirst.Add(time.Duration(daysAhead*24) * time.Hour),
 	}
 }
 
@@ -57,6 +62,7 @@ func TestEngine(t *testing.T) {
 	testChannel2 := NewTestChannel("test2")
 
 	config := engine.EngineConfig{
+		NowFunc: func() time.Time { return octoberFirst },
 		Channels: []channels.Channel{
 			channels.Channel(testChannel1),
 			channels.Channel(testChannel2),
@@ -72,6 +78,17 @@ func TestEngine(t *testing.T) {
 				testEvent("Test Event 7", "test-source-1", 7),
 				testEvent("Test Event 8", "test-source-1", 8),
 			})),
+		},
+		WeeklySummaryDay: octoberFirst.Weekday(),
+		WeeklySummaryTemplates: map[string]rules.WeeklySummaryFunc{
+			"test": func(events []sources.Event) string {
+				eventLines := []string{}
+				for _, event := range events {
+					day := event.DateTime.Weekday().String()
+					eventLines = append(eventLines, fmt.Sprintf("- [%s] <%s|%s>", day[:3], event.URL, event.Name))
+				}
+				return fmt.Sprintf("Events this week!\n\n%s", strings.Join(eventLines, "\n"))
+			},
 		},
 		Rules: []rules.NotifyRule{
 			{
@@ -108,6 +125,15 @@ func TestEngine(t *testing.T) {
 		"1 day until Test Event 1 from test-source-1",
 		"3 days until Test Event 3 from test-source-1",
 		"7 days until Test Event 7 from test-source-1",
+		strings.Join([]string{
+			"Events this week!\n",
+			"- [Tue] <https://devict.org|Test Event 1>",
+			"- [Wed] <https://devict.org|Test Event 2>",
+			"- [Thu] <https://devict.org|Test Event 3>",
+			"- [Fri] <https://devict.org|Test Event 4>",
+			"- [Sat] <https://devict.org|Test Event 5>",
+			"- [Sun] <https://devict.org|Test Event 6>",
+		}, "\n"),
 	}
 
 	if len(testChannel1.sentMsgs) != len(expected) {
@@ -138,7 +164,7 @@ func containsStr(slice []string, str string) bool {
 }
 
 func TestShouldRun(t *testing.T) {
-	now := time.Now()
+	now := octoberFirst
 
 	e := engine.NewEngine(engine.EngineConfig{
 		RunAt: engine.RunAt{

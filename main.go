@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/devict/promobot/channels"
@@ -19,9 +20,9 @@ type config struct {
 	DevICTTwitter      DevICTTwitterConfig
 
 	// Sources
-	DevICTMeetupURL string `envconfig:"DEVICT_MEETUP_URL" required:"true"`
-	OzSecMeetupURL  string `envconfig:"OZSEC_MEETUP_URL" required:"true"`
-	WTFMeetupURL    string `envconfig:"WTF_MEETUP_URL" required:"true"`
+	DevICTMeetupURLName string `envconfig:"DEVICT_MEETUP_URL_NAME" required:"true"`
+	OzSecMeetupURLName  string `envconfig:"OZSEC_MEETUP_URL_NAME" required:"true"`
+	WTFMeetupURLName    string `envconfig:"WTF_MEETUP_URL_NAME" required:"true"`
 }
 
 type DevICTTwitterConfig struct {
@@ -40,10 +41,11 @@ func main() {
 	loc, _ := time.LoadLocation("America/Chicago")
 
 	e := engine.NewEngine(engine.EngineConfig{
+		NowFunc: func() time.Time { return time.Now() },
 		Sources: []sources.Source{
-			sources.Source(sources.NewMeetupSource("devICT", c.DevICTMeetupURL)),
-			sources.Source(sources.NewMeetupSource("OzSec", c.OzSecMeetupURL)),
-			sources.Source(sources.NewMeetupSource("Wichita Technology Forum", c.WTFMeetupURL)),
+			sources.Source(sources.NewMeetupSource("devICT", c.DevICTMeetupURLName)),
+			sources.Source(sources.NewMeetupSource("OzSec", c.OzSecMeetupURLName)),
+			sources.Source(sources.NewMeetupSource("Wichita Technology Forum", c.WTFMeetupURLName)),
 		},
 		Channels: []channels.Channel{
 			channels.Channel(channels.NewSlackChannel("devICT", c.DevICTSlackWebhook)),
@@ -54,6 +56,20 @@ func main() {
 				APISecretKey:      c.DevICTTwitter.APISecretKey,
 			})),
 		},
+		WeeklySummaryTemplates: map[string]rules.WeeklySummaryFunc{
+			"slack": func(events []sources.Event) string {
+				eventLines := []string{}
+				for _, event := range events {
+					day := event.DateTime.Weekday().String()
+					eventLines = append(eventLines, fmt.Sprintf("- [%s] <%s|%s>", day[:3], event.URL, event.Name))
+				}
+				return fmt.Sprintf("Events this week!\n\n%s", strings.Join(eventLines, "\n"))
+			},
+			// "twitter": func(events []sources.Event) string {
+			// 	return ""
+			// },
+		},
+		WeeklySummaryDay: time.Tuesday,
 		Rules: []rules.NotifyRule{
 			{
 				NumDaysOut: 10,
